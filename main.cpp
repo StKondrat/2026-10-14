@@ -35,7 +35,7 @@ value_t sumBlock(const data_t & value, size_t begin, size_t end)
 
   for (size_t i = begin; i < end; ++i)
   {
-    sum = value[i];
+    sum += value[i];
   }
 
   return sum;
@@ -47,9 +47,11 @@ int main(int argc, char ** argv)
   double init{0}, total{0};
   value_t sum{0};
   {
-    knd::Clicker cl;
-    data_t values(size, 1);
-    init = cl.millisec();
+    if (argc != 2)
+    {
+      std::cout << "Usage: " << argv[0] << " <threads>\n";
+      return 1;
+    }
 
     size_t threads = 0;
 
@@ -69,8 +71,9 @@ int main(int argc, char ** argv)
       return 1;
     }
 
-    size_t blockSize = size / threads;
-
+    knd::Clicker cl;
+    data_t values(size, 1);
+    init = cl.millisec();
 
     std::vector<std::future<value_t>> futures;
 
@@ -82,7 +85,7 @@ int main(int argc, char ** argv)
       futures.push_back(std::async(std::launch::async, sumBlock, std::cref(values), begin, end));
     }
 
-    size_t sum = 0;
+
     for (size_t i = 0; i < threads; ++i)
     {
       sum += futures[i].get();
@@ -96,4 +99,3 @@ int main(int argc, char ** argv)
   std::cout << "Total - Init: " << total - init << "\n";
 
 }
-
